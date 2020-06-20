@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="500" height="300"></canvas>
+</body>
+<script src="./common.js"></script>
+<script>
+    const canvas = document.querySelector('#canvas')
+    const gl = canvas.getContext('webgl2')
+    const clearColor = [1.0, 1.0, 1.0, 1.0]
+
+    const point = [0.5, 0.0, 0.0, 1.0] // 向vertex shader传输的点位置
+    const pointColor = [0.5, 0.0, 0.6, 1.0] // 向fragment shader传输的点的颜色
+
+    // shader
+    const vShader_s = `
+        attribute vec4 a_Position;
+        void main() {
+            gl_Position = a_Position;
+            gl_PointSize = 10.0;
+        }
+    `
+    const fShader_s = `
+        precision mediump float;
+        uniform vec4 u_FragColor;
+        void main() {
+            gl_FragColor = u_FragColor;
+        }
+    `
+    initShaders(gl, vShader_s, fShader_s)
+
+    // 获取a_Position存储地址
+    const a_Position = gl.getAttribLocation(gl.program, 'a_Position')
+
+    const u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor')
+
+    // 将定点位置传输给attribute变量
+    gl.vertexAttrib3f(a_Position, ...point)
+
+    gl.uniform4f(u_FragColor, ...pointColor)
+
+
+    // 设置清除画布的颜色
+    gl.clearColor(...clearColor)
+
+    // 清除画布， 使用clearColor填充画布
+    gl.clear(gl.COLOR_BUFFER_BIT)
+
+    gl.drawArrays(gl.POINTS, 0, 1)
+</script>
+
+</html>
