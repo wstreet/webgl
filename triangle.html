@@ -77,31 +77,6 @@
         return n
     }
 
-    [1, 2, 1, 2, 1].sort((v1, v2) => {
-        return v1 - v2
-    })
-
-    function count(dest) {
-        if (dest === 0) return 0
-        if (dest === 1) return 1
-        let current = 2
-        let count = 2 // 0->1->2
-        while (current < dest) {
-            if (dest / current >= 2) {
-                current += current
-            } else {
-                current += 1
-            }
-            count += 1
-        }
-        return count
-    }
-
-    const f = (a, b) => {
-        const inner = function () {
-
-        }
-    }
 </script>
 
 </html>
