@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="500" height="300"></canvas>
+</body>
+<script src="./common.js"></script>
+<script>
+    const canvas = document.querySelector('#canvas')
+    const gl = canvas.getContext('webgl2')
+    const clearColor = [1.0, 1.0, 1.0, 1.0]
+
+    // shader
+    const vShader_s = `
+        attribute vec4 a_Position;
+        void main() {
+            gl_Position = a_Position;
+        }
+    `
+    const fShader_s = `
+        void main() {
+            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        }
+    `
+    initShaders(gl, vShader_s, fShader_s)
+
+    // 设置点的坐标信息
+
+    const n = initVertexBuffers(gl)
+
+    // 设置清除画布的颜色
+    gl.clearColor(...clearColor)
+
+    // 清除画布， 使用clearColor填充画布
+    gl.clear(gl.COLOR_BUFFER_BIT)
+
+
+    gl.drawArrays(gl.TRIANGLES, 0, n) // 从第一个点开始，绘制n个
+
+
+    // -----------------------------------
+    function initVertexBuffers(gl) {
+        const vertices = new Float32Array([
+            0.0, 0.5,
+            - 0.5, -0.5,
+            0.5, -0.5
+        ])
+
+        const size = 2 // 每几个数为一组point
+
+        const n = vertices.length / 2 // 点的个数
+
+        // 创建缓冲区对象
+        const vertexBuffer = gl.createBuffer()
+
+        // 将缓冲区对象绑定到目标上
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
+
+        //向缓冲区对象中写入数据
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
+
+        // 获取a_Position存储地址
+        const a_Position = gl.getAttribLocation(gl.program, 'a_Position')
+
+        // 将缓冲区对象分配给a_Position
+        gl.vertexAttribPointer(a_Position, size, gl.FLOAT, false, 0, 0)
+
+        // 连接a_Positon变量与分配给它的缓冲区对象
+        gl.enableVertexAttribArray(a_Position)
+
+        return n
+    }
+
+    [1, 2, 1, 2, 1].sort((v1, v2) => {
+        return v1 - v2
+    })
+
+    function count(dest) {
+        if (dest === 0) return 0
+        if (dest === 1) return 1
+        let current = 2
+        let count = 2 // 0->1->2
+        while (current < dest) {
+            if (dest / current >= 2) {
+                current += current
+            } else {
+                current += 1
+            }
+            count += 1
+        }
+        return count
+    }
+
+    const f = (a, b) => {
+        const inner = function () {
+
+        }
+    }
+</script>
+
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="500" height="300"></canvas>
+</body>
+<script src="./common.js"></script>
+<script>
+    const canvas = document.querySelector('#canvas')
+    const gl = canvas.getContext('webgl2')
+    const clearColor = [1.0, 1.0, 1.0, 1.0]
+
+    const points = [] // 向vertex shader传输的点位置
+    const pointColors = [] // 向fragment shader传输的点的颜色
+
+    // shader
+    const vShader_s = `
+        attribute vec4 a_Position;
+        void main() {
+            gl_Position = a_Position;
+            gl_PointSize = 10.0;
+        }
+    `
+    const fShader_s = `
+        precision mediump float;
+        uniform vec4 u_FragColor;
+        void main() {
+            gl_FragColor = u_FragColor;
+        }
+    `
+    initShaders(gl, vShader_s, fShader_s)
+
+    // 获取a_Position存储地址
+    const a_Position = gl.getAttribLocation(gl.program, 'a_Position')
+
+    const u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor')
+
+    // 监听事件获取点击位置
+    canvas.onclick = (ev) => {
+        const point = clientToWebglPoint(ev)
+        points.push(point)
+        pointColors.push(randomColor())
+
+        // 设置清除画布的颜色
+        gl.clearColor(...clearColor)
+
+        // 清除画布， 使用clearColor填充画布
+        gl.clear(gl.COLOR_BUFFER_BIT)
+
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            const color = pointColors[i]
+
+            // 将定点位置传输给attribute变量
+            gl.vertexAttrib3f(a_Position, ...point, 0.0, 1.0)
+
+            gl.uniform4f(u_FragColor, ...color)
+
+            gl.drawArrays(gl.POINTS, 0, 1)
+        }
+
+    }
+
+
+    function clientToWebglPoint(ev) {
+        const { clientX, clientY } = ev;
+        const bbox = ev.target.getBoundingClientRect();
+        // 坐标相对于client转换成相对于canvas
+        const canvasX = clientX - bbox.left
+        const canvasY = clientY - bbox.top
+
+        // 坐标相对于canvas转换成相对于webgl
+        const glX = (canvasX - canvas.width / 2) / (canvas.width / 2); // 范围(-1, 1)
+        const glY = -(canvasY - canvas.height / 2) / (canvas.height / 2); // 范围(-1, 1)
+
+        return [glX, glY]
+    }
+
+    function randomColor() {
+        return [
+            Math.random().toFixed(1),
+            Math.random().toFixed(1),
+            Math.random().toFixed(1),
+            1.0
+        ]
+    }
+</script>
+
+</html>
