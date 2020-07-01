@@ -196,6 +196,60 @@ class  Matrix4  {
     e[2] *= sx; e[6] *= sy;  e[10] *= sz;
     e[3] *= sx; e[7] *= sy;  e[11] *= sz;
     return this;
-}
+  }
+
+
+  setLookAt(eyeX, eyeY, eyeZ, atX, atY, atZ, upX, upY, upZ) {
+      // N = eye - target
+      let nx, ny, nz;
+      nx = eyeX - atX;
+      ny = eyeY - atY;
+      nz = eyeZ - atZ;
+      let rl = 1/Math.sqrt(nx*nx+ny*ny+nz*nz);
+      nx *= rl;
+      ny *= rl;
+      nz *= rl;
+      // U = UP cross N
+      let ux, uy, uz;
+      ux = upY * nz - upZ * ny;
+      uy = upZ * nx - upX * nz;
+      uz = upX * ny - upY * nx;
+      rl = 1/Math.sqrt(ux*ux+uy*uy+uz*uz);
+      ux *= rl;
+      uy *= rl;
+      uz *= rl;
+      // V = N cross U
+      let vx, vy, vz;
+      vx = ny * uz - nz * uy;
+      vy = nz * ux - nx * uz;
+      vz = nx * uy - ny * ux;
+      rl = 1/Math.sqrt(vx*vx+vy*vy+vz*vz);
+      vx *= rl;
+      vy *= rl;
+      vz *= rl;
+
+      let e = this.elements;
+      e[0] = ux;
+      e[1] = vx;
+      e[2] = nx;
+      e[3] = 0;
+
+      e[4] = uy;
+      e[5] = vy;
+      e[6] = ny;
+      e[7] = 0;
+
+      e[8] = uz;
+      e[9] = vz;
+      e[10] = nz;
+      e[11] = 0;
+
+      e[12] = 0;
+      e[13] = 0;
+      e[14] = 0;
+      e[15] = 1;
+
+      return this.translate(-eyeX, -eyeY, -eyeZ);
+  }
 
 }
