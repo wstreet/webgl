@@ -252,4 +252,82 @@ class  Matrix4  {
       return this.translate(-eyeX, -eyeY, -eyeZ);
   }
 
+  setPerspective(fovy, aspect, near, far) {
+    var e, rd, s, ct;
+  
+    if (near === far || aspect === 0) {
+      throw 'null frustum';
+    }
+    if (near <= 0) {
+      throw 'near <= 0';
+    }
+    if (far <= 0) {
+      throw 'far <= 0';
+    }
+  
+    fovy = Math.PI * fovy / 180 / 2;
+    s = Math.sin(fovy);
+    if (s === 0) {
+      throw 'null frustum';
+    }
+  
+    rd = 1 / (far - near);
+    ct = Math.cos(fovy) / s;
+  
+    e = this.elements;
+  
+    e[0]  = ct / aspect;
+    e[1]  = 0;
+    e[2]  = 0;
+    e[3]  = 0;
+  
+    e[4]  = 0;
+    e[5]  = ct;
+    e[6]  = 0;
+    e[7]  = 0;
+  
+    e[8]  = 0;
+    e[9]  = 0;
+    e[10] = -(far + near) * rd;
+    e[11] = -1;
+  
+    e[12] = 0;
+    e[13] = 0;
+    e[14] = -2 * near * far * rd;
+    e[15] = 0;
+  
+    return this;
+  };
+
+  lookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ) {
+    return this.concat(new Matrix4().setLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ));
+  }
+
+  concat(other) {
+    var i, e, a, b, ai0, ai1, ai2, ai3;
+  
+    // Calculate e = a * b
+    e = this.elements;
+    a = this.elements;
+    b = other.elements;
+    
+    // If e equals b, copy b to temporary matrix.
+    if (e === b) {
+      b = new Float32Array(16);
+      for (i = 0; i < 16; ++i) {
+        b[i] = e[i];
+      }
+    }
+    
+    for (i = 0; i < 4; i++) {
+      ai0=a[i];  ai1=a[i+4];  ai2=a[i+8];  ai3=a[i+12];
+      e[i]    = ai0 * b[0]  + ai1 * b[1]  + ai2 * b[2]  + ai3 * b[3];
+      e[i+4]  = ai0 * b[4]  + ai1 * b[5]  + ai2 * b[6]  + ai3 * b[7];
+      e[i+8]  = ai0 * b[8]  + ai1 * b[9]  + ai2 * b[10] + ai3 * b[11];
+      e[i+12] = ai0 * b[12] + ai1 * b[13] + ai2 * b[14] + ai3 * b[15];
+    }
+    
+    return this;
+  }
+
 }
